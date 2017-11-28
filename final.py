@@ -1,16 +1,19 @@
 import pygame, random, sys ,os,time
 from pygame.locals import *
 
+
+# Height and Width of Screen
 WINDOWWIDTH = 800
 WINDOWHEIGHT = 600
-TEXTCOLOR = (255, 255, 255)
+
+# Colours
+TEXTCOLOR = (255, 255, 0)
 BACKGROUNDCOLOR = (0, 0, 0)
+
 FPS = 40
-OBSTACLEEMINSIZE = 10
-OBSTACLEMAXSIZE = 40
-OBSTACLEMINSPEED = 7
-OBSTACLEMAXSPEED = 9
-ADDNEWOBSTACLERATE = 8
+OBSTACLEMINSPEED = 6
+OBSTACLEMAXSPEED = 8
+ADDNEWOBSTACLERATE = 20
 PLAYERMOVERATE = 5
 count=3
 
@@ -77,34 +80,39 @@ windowSurface.blit(logo,(190,100))
 windowSurface.blit(start,(105,400))
 pygame.display.update()
 waitForPlayerToPressKey()
-zero= 0
+
+zero=0
+
+# Initial Top Score
 if not os.path.exists("save.dat"):
     f=open("save.dat",'w')
-    f.write(str(zero))
+    f.write(zero)
     f.close()   
 v=open("save.dat",'r')
 topScore = int(v.readline())
 v.close()
+
+score = 0
+
+# Game Loop-------------
 while (count>0):
 
     # start of the game
     obstacles = []
-    score = 0
     playerRect.topleft = (WINDOWWIDTH / 2, WINDOWHEIGHT - 50)
     moveLeft = moveRight = moveUp = moveDown = False
     obstacleAddCounter = 0
 
     while True:
         windowSurface.blit(bg,(-250,-200))
-        #windowSurface.fill(BACKGROUNDCOLOR)
         score +=1
         for event in pygame.event.get():
             
             if event.type == QUIT:
                 terminate()
 
+            # Key events when pressed
             if event.type == KEYDOWN:
-
                 if event.key == K_LEFT:
                     moveRight = False
                     moveLeft = True
@@ -118,8 +126,9 @@ while (count>0):
                     moveUp = False
                     moveDown = True
 
+            # Key events when key lifted up
             if event.type == KEYUP:
-                if event.key == K_ESCAPE:
+                if event.key == K_ESCAPE:   
                         terminate()
                 if event.key == K_LEFT:
                     moveLeft = False
@@ -135,7 +144,7 @@ while (count>0):
         if obstacleAddCounter == ADDNEWOBSTACLERATE:
             obstacleAddCounter = 0
             obstacleSize =70 
-            newobstacle = {'rect': pygame.Rect(random.randint(10, 790), 0 - obstacleSize, 25, 30),
+            newobstacle = {'rect': pygame.Rect(random.randint(10, 790), 0 - obstacleSize, 25, 25),
                         'speed': random.randint(OBSTACLEMINSPEED, OBSTACLEMAXSPEED),
                         'surface':pygame.transform.scale(random.choice(sample), (60, 60)),
                         }
@@ -159,13 +168,12 @@ while (count>0):
             if b['rect'].top > WINDOWHEIGHT:
                 obstacles.remove(b)  
 
-        # Draw the game world
-        #windowSurface.fill(BACKGROUNDCOLOR)
+
 
         # Score
-        drawText('Score: %s' % (score), font, windowSurface, 10, 0)
-        drawText('Top Score: %s' % (topScore), font, windowSurface,10, 20)
-        drawText('Life: %s' % (count), font, windowSurface,10, 40)
+        drawText('Score: %s' % (score), font, windowSurface, 0, 0)
+        drawText('Top Score: %s' % (topScore), font, windowSurface,0, 20)
+        drawText('Rest Life: %s' % (count), font, windowSurface,0, 40)
         windowSurface.blit(playerImage, playerRect)
         for b in obstacles:
             windowSurface.blit(b['surface'], b['rect'])
@@ -180,12 +188,30 @@ while (count>0):
                 g.close()
                 topScore = score
             break
+
         mainClock.tick(FPS)
+
+        # Difficulty Levels
+        if(score == 100):
+            ADDNEWOBSTACLERATE = 18
+        if(score == 200):
+            ADDNEWOBSTACLERATE = 16
+        if(score == 500):
+            ADDNEWOBSTACLERATE = 15
+        if(score == 700):
+            ADDNEWOBSTACLERATE = 12
+        if(score == 1500):
+            ADDNEWOBSTACLERATE = 9
+        if(score == 2000):
+            ADDNEWOBSTACLERATE = 6
+
+
 
     # Game Over Screen    
     count=count-1
     time.sleep(1)
     if (count==0):
+        score = 0
         windowSurface.fill(BACKGROUNDCOLOR)
         img = pygame.image.load('image/game over.jpg')
         windowSurface.blit(img, (0,0))
@@ -193,3 +219,4 @@ while (count>0):
         time.sleep(2)
         waitForPlayerToPressKey()
         count=3
+        ADDNEWOBSTACLERATE = 20
