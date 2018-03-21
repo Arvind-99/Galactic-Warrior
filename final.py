@@ -70,10 +70,13 @@ sample = [meteor,planet1,planet2,satellite,alien,meteor]
 
 
 #sounds
-pygame.mixer.init()
-music_file = 'soundtrack.mp3'
-pygame.mixer.music.load(music_file)
-pygame.mixer.music.play(-1)
+try:
+    pygame.mixer.init()
+    music_file = 'soundtrack.mp3'
+    pygame.mixer.music.load(music_file)
+    pygame.mixer.music.play(-1)
+except pygame.error:
+    pass
 
 windowSurface.blit(bg,(-250,-200))
 windowSurface.blit(logo,(190,100))
@@ -134,7 +137,7 @@ while (count>0):
                     moveLeft = False
                 if event.key == K_RIGHT:
                     moveRight = False
-                if event.key == K_UP:
+                if event.key == K_UP:   
                     moveUp = False
                 if event.key == K_DOWN:
                     moveDown = False
